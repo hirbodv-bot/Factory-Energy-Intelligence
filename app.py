@@ -1,4 +1,3 @@
-
 import io
 from datetime import date
 
@@ -489,23 +488,23 @@ with st.sidebar:
     st.header("Analysis Controls")
 
     data_source = st.radio(
-        "Choose data source",
-        ["Use demonstration data", "Upload company Excel data"],
+        "Data Source",
+        ["Use Demo Dataset", "Upload Factory Data"],
         help=(
-            "Use the demonstration dataset to explore the app immediately, "
-            "or upload a workbook containing a sheet named Factory_Data."
+            "Select the built-in demo dataset to explore the app immediately, "
+            "or upload your own factory workbook containing a sheet named Factory_Data."
         ),
     )
 
     uploaded_file = None
-    if data_source == "Upload company Excel data":
+    if data_source == "Upload Factory Data":
         uploaded_file = st.file_uploader(
-            "Upload Excel workbook",
+            "Upload Factory Excel Workbook",
             type=["xlsx", "xls"],
         )
 
         st.download_button(
-            "Download Excel template",
+            "Download Data Template",
             data=sample_excel_bytes(),
             file_name="Factory_Energy_Data_Template.xlsx",
             mime=(
@@ -519,42 +518,77 @@ with st.sidebar:
     st.subheader("Scenario Assumptions")
 
     reduction_pct = st.slider(
-        "Expected energy reduction (%)",
+        "Expected Energy Saving (%)",
         min_value=0,
         max_value=40,
         value=10,
         step=1,
+        help=(
+            "The anticipated percentage reduction in electricity consumption "
+            "after implementing an energy-efficiency measure. This is a scenario "
+            "assumption used to estimate potential cost and carbon savings."
+        ),
     )
 
     scenario_tariff = st.number_input(
-        "Scenario electricity tariff (£/kWh)",
+        "Electricity Tariff (£/kWh)",
         min_value=0.0,
         max_value=5.0,
         value=0.25,
         step=0.01,
         format="%.2f",
+        help=(
+            "The electricity price used in the scenario analysis. "
+            "This can represent the current tariff, a future tariff, "
+            "or a proposed energy contract."
+        ),
     )
 
     operating_days_month = st.slider(
-        "Operating days per month",
+        "Operating Days per Month",
         min_value=1,
         max_value=31,
         value=22,
         step=1,
+        help=(
+            "The expected number of factory operating days in a typical month. "
+            "This value is used to estimate monthly and annual electricity cost and savings."
+        ),
     )
 
     carbon_factor = st.number_input(
-        "Electricity carbon factor (kgCO₂e/kWh)",
+        "Grid Carbon Factor (kgCO₂e/kWh)",
         min_value=0.0,
         max_value=2.0,
         value=0.20,
         step=0.01,
         format="%.3f",
         help=(
-            "Use the emissions factor appropriate to the location, "
-            "reporting year, and electricity supply arrangement."
+            "The greenhouse-gas emission factor associated with electricity use. "
+            "Use the value appropriate to the country, reporting year, and supply arrangement."
         ),
     )
+
+    with st.expander("What do these inputs mean?"):
+        st.markdown(
+            """
+            **Expected Energy Saving (%)**  
+            The anticipated reduction in electricity use after an efficiency improvement.
+
+            **Electricity Tariff (£/kWh)**  
+            The electricity price used to calculate current or future energy costs.
+
+            **Operating Days per Month**  
+            The number of days the factory is expected to operate each month.
+
+            **Grid Carbon Factor (kgCO₂e/kWh)**  
+            The carbon emissions associated with each kilowatt-hour of electricity consumed.
+
+            **Downtime**  
+            The period when equipment is scheduled to operate but is not producing due to
+            breakdowns, maintenance, material shortages, changeovers, or other interruptions.
+            """
+        )
 
     st.divider()
     st.caption(
@@ -567,7 +601,7 @@ with st.sidebar:
 # LOAD DATA
 # ============================================================
 try:
-    if data_source == "Use demonstration data":
+    if data_source == "Use Demo Dataset":
         raw_df = create_demo_data()
         source_label = "Demonstration dataset"
     elif uploaded_file is not None:
